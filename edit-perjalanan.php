@@ -5,6 +5,8 @@ include "koneksi.php";
 if (isset($_GET['id_perjalanan'])) {
   $id_perjalanan = $_GET['id_perjalanan'];
 
+  $failedMessage = '';
+
   // Query untuk mendapatkan data sopir berdasarkan ID
   $query = "SELECT dp.*, s.nama_lengkap AS nama_sopir, s.id_sopir AS idSopir
                       FROM daftar_perjalanan dp
@@ -44,12 +46,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $id_sopir = $_POST["id_sopir"];
   $mobil_id = $_POST["mobil_id"];
 
+  $validasiSopir = "SELECT * FROM daftar_perjalanan
+                      WHERE id_sopir = '$id_sopir' AND tanggal = '$tanggal' AND waktu_keberangkatan = '$waktu_keberangkatan' AND id_perjalanan != '$id_perjalanan'";
+
+  $validasiKendaraan = "SELECT * FROM daftar_perjalanan
+                      WHERE mobil_id = '$mobil_id' AND tanggal = '$tanggal' AND waktu_keberangkatan = '$waktu_keberangkatan' AND id_perjalanan != '$id_perjalanan'";
+
+  $isSuccess = true;
+  if ($conn->query($validasiSopir)->num_rows > 0) {
+    $failedMessage = "Sopir telah ditugaskan pada tanggal $tanggal jam $waktu_keberangkatan";
+    $isSuccess = false;
+  }
+
+  
+  if ($conn->query($validasiKendaraan)->num_rows > 0) {
+    $failedMessage = "Mobil telah digunakan pada tanggal $tanggal jam $waktu_keberangkatan";
+    $isSuccess = false;
+  }
+
   // Query UPDATE
   $sql = "UPDATE daftar_perjalanan SET kota_asal='$kotaasal', kota_tujuan='$kotatujuan', waktu_keberangkatan='$waktu_keberangkatan', tanggal = '$tanggal', harga='$harga', status='$status',id_sopir='$id_sopir', mobil_id='$mobil_id', jumlah_penumpang='$jumlah_penumpang' WHERE id_perjalanan='$id_perjalanan'";
 
-  // Eksekusi query
-  if ($conn->query($sql) === TRUE) {
-    $isSuccess = true;
+  if ($isSuccess) {
+    // Eksekusi query
+    if ($conn->query($sql) === TRUE) {
+      $isSuccess = true;
+    }
   }
 }
 
@@ -111,8 +133,8 @@ if (isset($_POST['cancel'])) {
         </button>
       </div>
       <div>
-        <a class="navbar-brand brand-logo" href="index.html">
-          <img src="img/logo.svg" alt="logo" />
+        <a class="navbar-brand brand-logo" href="#">
+        <strong>PettaExpress</strong>
         </a>
         <a class="navbar-brand brand-logo-mini" href="index.html">
           <img src="img/logo-mini.svg" alt="logo" />
@@ -313,12 +335,36 @@ if (isset($_POST['cancel'])) {
                         Data berhasil di Edit!
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="window.location.href='edit-perjalanan.php'">Tutup</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="window.location.href='edit-perjalanan.php?id_perjalanan=<?= $id_perjalanan ?>'">Tutup</button>
                         <a class="btn btn-primary" href="jurusan.php">Lihat Data</a>
                       </div>
                     </div>
                   </div>
                 </div>
+
+                <!-- Modal Gagal -->
+                <div class="modal fade" id="failedModal" tabindex="-1" role="dialog" aria-labelledby="failedModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="failedModalLabel">Gagal!</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        Gagal mengedit data! <br>
+                        <span class="failed--message"></span>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="window.location.href='edit-perjalanan.php?id_perjalanan=<?= $id_perjalanan ?>'">Tutup</button>
+                        <a class="btn btn-danger" href="jurusan.php">Lihat Data</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
               </div>
             </div>
           </div>
@@ -392,9 +438,13 @@ if (isset($_POST['cancel'])) {
     document.addEventListener("DOMContentLoaded", function() {
       // Pastikan variabel isSuccess diatur oleh PHP setelah operasi penambahan data berhasil
       var isSuccess = <?php echo json_encode($isSuccess); ?>;
+      var message = `<?php echo json_encode($failedMessage); ?>`;
 
       if (isSuccess) {
         $('#successModal').modal('show');
+      } else {
+        $('#failedModal').modal('show');
+        $('.failed--message').html(message)
       }
     });
   </script>

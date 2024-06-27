@@ -51,8 +51,8 @@ $username = $_SESSION["username"];
         </button>
       </div>
       <div>
-        <a class="navbar-brand brand-logo" href="index.html">
-          <img src="img/logo.svg" alt="logo" />
+        <a class="navbar-brand brand-logo" href="#">
+        <strong>PettaExpress</strong>
         </a>
         <a class="navbar-brand brand-logo-mini" href="index.html">
           <img src="img/logo-mini.svg" alt="logo" />
@@ -166,8 +166,7 @@ $username = $_SESSION["username"];
                   <table class="table table-Hover">
                     <thead>
                       <tr>
-                        <th>Asal</th>
-                        <th>Tujuan</th>
+                        <th>Perjalanan</th>
                         <th>Keberangkatan</th>
                         <th>Harga</th>
                         <th>Status</th>
@@ -189,8 +188,7 @@ $username = $_SESSION["username"];
                       if ($result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {
                           echo "<tr>";
-                          echo "<td>" . $row["kota_asal"] . "</td>";
-                          echo "<td>" . $row["kota_tujuan"] . "</td>";
+                          echo "<td>" . $row["kota_asal"] . " -> " . $row['kota_tujuan'] . "</td>";
                           echo "<td>" . $row["waktu_keberangkatan"] . " " . $row["tanggal"] . "</td>";
                           echo "<td>" . $row["harga"] . "</td>";
                           echo "<td>" . $row["status"] . "</td>";

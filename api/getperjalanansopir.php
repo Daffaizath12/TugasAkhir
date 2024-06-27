@@ -20,8 +20,8 @@ $sql = "SELECT p.*, u.*, dp.*,
         JOIN mobil m ON dp.mobil_id = m.id_mobil
         WHERE p.status = 'Selesai' 
           AND dp.id_sopir = '$id_sopir' 
-          AND dp.id_perjalanan = '$id_perjalanan' 
-          ";
+          AND dp.id_perjalanan = '$id_perjalanan'  
+          AND p.status_antar = 'active'";
 
 $result = mysqli_query($db, $sql);
 

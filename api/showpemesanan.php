@@ -9,6 +9,7 @@ if (!$db) {
 $id_user = $_GET['id_user'];
 
 $sql = "SELECT p.id_pemesanan, p.id_user, p.id_perjalanan, p.order_id, p.alamat_jemput, p.alamat_tujuan, p.waktu_jemput,p.qty, p.status AS pemesanan_status, p.tanggal_pesan, p.tanggal_berangkat, p.harga, dp.kota_asal, dp.kota_tujuan, dp.tanggal, dp.waktu_keberangkatan
+        , p.status_penjemputan, P.status_antar
         FROM pemesanan p 
         JOIN daftar_perjalanan dp ON p.id_perjalanan = dp.id_perjalanan 
         WHERE p.id_user = '$id_user'

@@ -5,6 +5,9 @@ if (!$db) {
  die("Connection failed: " . mysqli_connect_error());
 }
 
+// Mengambil kota asal dari parameter request
+$selectedKotaAsal = isset($_GET['kota_asal']) ? $_GET['kota_asal'] : '';
+
 // Query untuk mengambil kota asal
 $queryAsal = "
     SELECT DISTINCT kota_asal 
@@ -13,10 +16,11 @@ $queryAsal = "
 
 $resultAsal = mysqli_query($db, $queryAsal);
 
-// Query untuk mengambil kota tujuan
+// Query untuk mengambil kota tujuan, mengabaikan kota yang dipilih sebagai asal
 $queryTujuan = "
     SELECT DISTINCT kota_tujuan 
     FROM daftar_perjalanan
+    WHERE kota_tujuan != '$selectedKotaAsal'
 ";
 
 $resultTujuan = mysqli_query($db, $queryTujuan);
@@ -41,3 +45,4 @@ if ($resultAsal && $resultTujuan) {
 
 // Menutup koneksi database
 mysqli_close($db);
+?>

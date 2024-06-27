@@ -11,13 +11,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["action"]) && $_POST["a
   $tanggal = $_POST["tanggal"];
   $jumlah_penumpang = $_POST["jumlah_penumpang"];
 
-  // Your SQL query
-  $sql = "INSERT INTO daftar_perjalanan (kota_asal, kota_tujuan, waktu_keberangkatan, harga, status, jumlah_penumpang, tanggal) VALUES ('$kotaasal', '$kotatujuan', '$waktu_keberangkatan', '$harga', '$status', '$jumlah_penumpang', '$tanggal')";
+  $isSuccess = false;
+  // Pesan error kosong
+  $error_message = "";
 
-  // Execute the query
-  if ($conn->query($sql) === TRUE) {
-    $isSuccess = true;
+  if ($kotaasal == $kotatujuan) {
+      $error_message = "Kota asal dan kota tujuan tidak boleh sama.";
+  } else {
+      // Cek apakah sudah ada entri dengan kota asal, kota tujuan, dan tanggal yang sama
+      $check_tanggal_sql = "SELECT * FROM daftar_perjalanan WHERE 
+                            kota_asal = '$kotaasal' AND kota_tujuan = '$kotatujuan' AND tanggal = '$tanggal'";
+      $result_tanggal = $conn->query($check_tanggal_sql);
+
+      if ($result_tanggal->num_rows > 0) {
+          $error_message = "Perjalanan dari kota $kotaasal ke kota $kotatujuan pada tanggal $tanggal sudah ditambahkan.";
+      } else {
+          // Tambahkan data perjalanan jika tidak ada entri dengan kota asal, kota tujuan, dan tanggal yang sama
+          $sql = "INSERT INTO daftar_perjalanan (kota_asal, kota_tujuan, waktu_keberangkatan, harga, status, jumlah_penumpang, tanggal) 
+                  VALUES ('$kotaasal', '$kotatujuan', '$waktu_keberangkatan', '$harga', '$status', '$jumlah_penumpang', '$tanggal')";
+
+          if ($conn->query($sql) === TRUE) {
+              $isSuccess = true;
+          } else {
+              $error_message = "Terjadi kesalahan saat menambahkan data perjalanan.";
+          }
+      }
   }
+  // Tampilkan pesan error atau sukses
+  if (!empty($error_message)) {
+      echo $error_message;
+  } else {
+      echo "Data perjalanan berhasil ditambahkan.";
+  }
+
+
 }
 
 session_start();
@@ -31,8 +58,6 @@ if (!isset($_SESSION["username"])) {
 // Mengambil username dari sesi
 $username = $_SESSION["username"];
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -72,8 +97,8 @@ $username = $_SESSION["username"];
         </button>
       </div>
       <div>
-        <a class="navbar-brand brand-logo" href="index.html">
-          <img src="img/logo.svg" alt="logo" />
+        <a class="navbar-brand brand-logo" href="#">
+        <strong>PettaExpress</strong>
         </a>
         <a class="navbar-brand brand-logo-mini" href="index.html">
           <img src="img/logo-mini.svg" alt="logo" />
@@ -156,121 +181,108 @@ $username = $_SESSION["username"];
         <li class="nav-item">
           <a class="nav-link" data-bs-toggle="collapse" href="#charts" aria-expanded="false" aria-controls="charts">
             <i class="menu-icon mdi mdi-chart-line"></i>
-            <span class="menu-title">Data Perjalanan</span>
+            <span class="menu-title">Perjalanan</span>
             <i class="menu-arrow"></i>
           </a>
           <div class="collapse" id="charts">
             <ul class="nav flex-column sub-menu">
-              <li class="nav-item"> <a class="nav-link" href="jurusan.php">Daftar Perjalanan</a></li>
+              <li class="nav-item"> <a class="nav-link" href="perjalanan.php">Data Perjalanan</a></li>
+              <li class="nav-item"> <a class="nav-link" href="add_perjalanan.php">Tambah Perjalanan</a></li>
             </ul>
           </div>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="mobil.php">
-            <i class="menu-icon mdi mdi-table"></i>
-            <span class="menu-title">Mobil</span>
-          </a>
-        </li>
       </ul>
     </nav>
-    <!-- partial -->
+
     <div class="main-panel">
       <div class="content-wrapper">
         <div class="row">
-          <div class="col-md-6 grid-margin stretch-card">
+          <div class="col-lg-6 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
-                <h4 class="card-title">Tambah Perjalanan</h4>
-                <form method="post" action="tambah-jurusan.php" onsubmit="return validasiForm()">
+                <h4 class="card-title">Tambah Data Perjalanan</h4>
+                <form class="forms-sample" method="POST" action="">
                   <div class="form-group">
-                    <label for="exampleInputKotaAsal">Kota Asal</label>
-                    <input type="text" class="form-control" id="exampleInputKotaAsal" name="kota_asal" placeholder="Kota Asal" Required>
+                    <label for="kota_asal">Kota Asal</label>
+                    <input type="text" class="form-control" id="kota_asal" name="kota_asal" required>
                   </div>
-
                   <div class="form-group">
-                    <label for="exampleInputKotaTujuan">Kota Tujuan</label>
-                    <input type="text" class="form-control" id="exampleInputKotaTujuan" name="kota_tujuan" placeholder="Kota Tujuan">
+                    <label for="kota_tujuan">Kota Tujuan</label>
+                    <input type="text" class="form-control" id="kota_tujuan" name="kota_tujuan" required>
                   </div>
-
                   <div class="form-group">
-                    <label for="exampleInputWaktuKeberangkatan">Waktu Keberangkatan</label>
-                    <input type="time" class="form-control" id="exampleInputWaktuKeberangkatan" name="waktu_keberangkatan" required>
+                    <label for="waktu_keberangkatan">Waktu Keberangkatan</label>
+                    <input type="time" class="form-control" id="waktu_keberangkatan" name="waktu_keberangkatan" required>
                   </div>
-
                   <div class="form-group">
-                    <label for="exampleInputWaktuKeberangkatan">Tanggal Keberangkatan</label>
-                    <input type="date" class="form-control" id="exampleInputWaktuKeberangkatan" name="tanggal" required>
+                    <label for="harga">Harga</label>
+                    <input type="number" class="form-control" id="harga" name="harga" required>
                   </div>
-
                   <div class="form-group">
-                    <label for="exampleInputHarga">Harga</label>
-                    <input type="number" class="form-control" id="exampleInputHarga" name="harga" placeholder="Harga">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="exampleInputStatus">Jumlah Penumpang</label>
-                    <input type="number" class="form-control" id="exampleInputStatus" name="jumlah_penumpang" required>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="exampleInputStatus">Status</label>
-                    <select class="form-control" id="exampleInputStatus" name="status">
-                      <option>Tersedia</option>
-                      <option>Kosong</option>
+                    <label for="status">Status</label>
+                    <select class="form-control" id="status" name="status" required>
+                      <option value="Tersedia">Tersedia</option>
+                      <option value="Tidak Tersedia">Tidak Tersedia</option>
                     </select>
                   </div>
-
+                  <div class="form-group">
+                    <label for="tanggal">Tanggal</label>
+                    <input type="date" class="form-control" id="tanggal" name="tanggal" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="jumlah_penumpang">Jumlah Penumpang</label>
+                    <input type="number" class="form-control" id="jumlah_penumpang" name="jumlah_penumpang" required>
+                  </div>
                   <button type="submit" class="btn btn-primary me-2" name="action" value="add">Submit</button>
                   <button type="button" class="btn btn-light" name="cancel" onclick="window.location.href='jurusan.php'">Cancel</button>
                 </form>
-                <!-- Modal Sukses -->
-                <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="successModalLabel">Sukses!</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                        Data berhasil ditambahkan!
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="window.location.href='tambah-jurusan.php'">Tutup</button>
-                        <a class="btn btn-primary" href="jurusan.php">Lihat Data</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal untuk menampilkan pesan sukses -->
+        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel">Sukses</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Data perjalanan berhasil ditambahkan.
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="window.location.href='jurusan.php'">Tutup</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal untuk menampilkan pesan kesalahan -->
+        <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Kesalahan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <?php echo isset($error_message) ? $error_message : ''; ?>
+              </div>
+              <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="window.location.href='jurusan.php'">Tutup</button>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <!-- Modal Logout -->
-      <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="logoutModalLabel">Konfirmasi Logout</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              Apakah Anda yakin ingin logout?
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-              <a href="logout.php" class="btn btn-danger">Logout</a>
-            </div>
-          </div>
-        </div>
-      </div>
       <!-- content-wrapper ends -->
-      <!-- partial:../../partials/_footer.html -->
+      <!-- partial:partials/_footer.html -->
       <footer class="footer">
         <div class="d-sm-flex justify-content-center justify-content-sm-between">
-          <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Copyright © 2021. All rights reserved.</span>
+          <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © pettaexpress.com 2023</span>
+          <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center"> Admin PettaExpress <i class="mdi mdi-heart text-danger"></i></span>
         </div>
       </footer>
       <!-- partial -->
@@ -278,73 +290,43 @@ $username = $_SESSION["username"];
     <!-- main-panel ends -->
   </div>
   <!-- page-body-wrapper ends -->
-  </div>
-  <!-- container-scroller -->
+</div>
 
-  <!-- plugins:js -->
-  <script src="vendors/js/vendor.bundle.base.js"></script>
-  <!-- endinject -->
-  <!-- Plugin js for this page -->
-  <script src="vendors/chart.js/Chart.min.js"></script>
-  <script src="vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
-  <script src="vendors/progressbar.js/progressbar.min.js"></script>
+<!-- plugins:js -->
+<script src="vendors/js/vendor.bundle.base.js"></script>
+<!-- endinject -->
+<!-- Plugin js for this page -->
+<script src="vendors/chart.js/Chart.min.js"></script>
+<script src="vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+<script src="vendors/progressbar.js/progressbar.min.js"></script>
+<!-- End plugin js for this page -->
+<!-- inject:js -->
+<script src="js/off-canvas.js"></script>
+<script src="js/hoverable-collapse.js"></script>
+<script src="js/template.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/todolist.js"></script>
+<!-- endinject -->
+<!-- Custom js for this page-->
+<script src="js/jquery.cookie.js" type="text/javascript"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/Chart.roundedBarCharts.js"></script>
+<!-- End custom js for this page-->
 
-  <!-- End plugin js for this page -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      // Mengambil nama pengguna dari sesi PHP
-      fetch('get_username.php')
-        .then(response => response.json())
-        .then(data => {
-          var name = data.username; // Sesuaikan dengan struktur data yang diambil dari sesi
-          var initials = getInitials(name);
-          document.getElementById('profileInitials').innerText = initials;
-        })
-        .catch(error => console.error('Error:', error));
-    });
-
-    function getInitials(name) {
-      var names = name.split(' ');
-      var initials = names[0].charAt(0).toUpperCase();
-      if (names.length > 1) {
-        initials += names[names.length - 1].charAt(0).toUpperCase();
-      }
-      return initials;
+<script>
+  // Cek apakah penambahan data berhasil atau terjadi kesalahan
+  $(document).ready(function() {
+    var isSuccess = <?php echo isset($isSuccess) && $isSuccess ? 'true' : 'false'; ?>;
+    var errorMessage = "<?php echo isset($error_message) ? $error_message : ''; ?>";
+    
+    if (isSuccess) {
+      $('#successModal').modal('show');
+    } else if (errorMessage) {
+      $('#errorModal').modal('show');
     }
-  </script>
-  <script>
-    // Inisialisasi modal
-    var myModal = new bootstrap.Modal(document.getElementById('logoutModal'), {
-      keyboard: false
-    });
-  </script>
+  });
+</script>
 
-
-  <!-- inject:js -->
-  <script src="js/off-canvas.js"></script>
-  <script src="js/hoverable-collapse.js"></script>
-  <script src="js/template.js"></script>
-  <script src="js/settings.js"></script>
-  <script src="js/todolist.js"></script>
-  <!-- endinject -->
-  <!-- Custom js for this page-->
-  <script src="js/jquery.cookie.js" type="text/javascript"></script>
-  <script src="js/dashboard.js"></script>
-  <script src="js/Chart.roundedBarCharts.js"></script>
-
-  <!-- Sisipkan skrip JavaScript Anda setelah jQuery dan Bootstrap -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      // Pastikan variabel isSuccess diatur oleh PHP setelah operasi penambahan data berhasil
-      var isSuccess = <?php echo json_encode($isSuccess); ?>;
-
-      if (isSuccess) {
-        $('#successModal').modal('show');
-      }
-    });
-  </script>
-
-  <!-- End custom js for this page-->
 </body>
 
 </html>

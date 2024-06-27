@@ -61,8 +61,8 @@ $res = $conn->query($querySopir);
         </button>
       </div>
       <div>
-        <a class="navbar-brand brand-logo" href="index.html">
-          <img src="img/logo.svg" alt="logo" />
+        <a class="navbar-brand brand-logo" href="#">
+          <strong>PettaExpress</strong>
         </a>
         <a class="navbar-brand brand-logo-mini" href="index.html">
           <img src="img/logo-mini.svg" alt="logo" />
@@ -163,64 +163,55 @@ $res = $conn->query($querySopir);
     <div class="main-panel">
       <div class="content-wrapper">
         <div class="row">
+          <?php 
+          $queryPelanggan = "SELECT COUNT(*) AS total_pelanggan FROM user WHERE id_role = '3'";
+          $resultPelanggan = $conn->query($queryPelanggan);
+          $totalPelanggan = ($resultPelanggan->num_rows > 0) ? $resultPelanggan->fetch_assoc()['total_pelanggan'] : 0;
+
+          $queryPesanan = "SELECT COUNT(*) AS total_pesanan FROM pemesanan";
+          $resultPesanan = $conn->query($queryPesanan);
+          $totalPesanan = ($resultPesanan->num_rows > 0) ? $resultPesanan->fetch_assoc()['total_pesanan'] : 0;
+
+          $queryPendapatan = "SELECT SUM(harga) AS total_pendapatan FROM pemesanan";
+          $resultPendapatan = $conn->query($queryPendapatan);
+          $totalPendapatan = ($resultPendapatan->num_rows > 0) ? $resultPendapatan->fetch_assoc()['total_pendapatan'] : 0;
+
+          $formattedHarga = number_format($totalPendapatan, 2, ',', '.');
+          ?>
+          <div class="col-sm-12">
+            <div class="statistics-details d-flex align-items-center justify-content-between">
+              <div class="card card-rounded p-4 w-100 m-2">
+                <p class="statistics-title">Pelanggan</p>
+                <h3 class="rate-percentage"><?php echo $totalPelanggan; ?></h3>
+              </div>
+              <div class="card card-rounded p-4 w-100 m-2">
+                <p class="statistics-title">Pemesanan</p>
+                <h3 class="rate-percentage"><?php echo $totalPesanan; ?></h3>
+              </div>
+              <div class="card card-rounded p-4 w-100 m-2">
+                <p class="statistics-title">Pendapatan</p>
+                <h3 class="rate-percentage">Rp. <?php echo $formattedHarga ?></h3>
+              </div>
+            </div>
+          </div>
+
           <div class="col-sm-12">
             <div class="home-tab">
               <div class="tab-content tab-content-basic">
                 <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview">
                   <div class="row">
                     <div class="col-lg-8 d-flex flex-column">
-                      <div class="row">
-                        <div class="col-lg-12 grid-margin stretch-card">
-                          <div class="card">
-                            <div class="card-body">
-                              <div class="d-flex justify-content-between align-items-center">
-                                <h4 class="card-title">Pesanan Terbaru</h4>
-                                <button type="submit" class="btn btn-primary"><i class="mdi mdi-apps"></i>Selengkapnya</button>
+                      <div class="card card-rounded">
+                        <div class="card-body">
+                          <div class="row">
+                            <div class="col-lg-12">
+                              <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                  <h4 class="card-title card-title-dash">Pemesanan Tahun Ini</h4>
+                                </div>
                               </div>
-                              <div class="table-responsive">
-                                <table class="table table-Hover">
-                                  <thead>
-                                    <tr>
-                                      <th>Nama</th>
-                                      <th>Kota Asal</th>
-                                      <th>Kota Tujuan</th>
-                                      <th>Tanggal Keberangkatan</th>
-                                      <th>Harga</th>
-                                      <th>Status</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <?php
-                                    // Periksa apakah ada data
-                                    if ($result->num_rows > 0) {
-                                      // Loop untuk menampilkan data
-                                      while ($row = $result->fetch_assoc()) {
-                                        echo "<tr>";
-                                        echo "<td>" . $row["nama_lengkap"] . "</td>";
-                                        echo "<td>" . $row["kota_asal"] . "</td>";
-                                        echo "<td>" . $row["kota_tujuan"] . "</td>";
-                                        echo "<td>" . $row["tanggal_berangkat"] . "</td>";
-                                        echo "<td>" . $row["harga"] . "</td>";
-                                        $status = $row["status"];
-                                        $class = '';
-
-                                        if ($status == 'Menunggu') {
-                                          $class = 'badge-opacity-warning';
-                                        } elseif ($status == 'Selesai') {
-                                          $class = 'badge-opacity-success';
-                                        } elseif ($status == 'Gagal') {
-                                          $class = 'badge-opacity-danger';
-                                        }
-                                        echo "<td><div class='badge $class'>$status</div></td>";
-                                        echo "</tr>";
-                                      }
-                                    } else {
-                                      // Jika tidak ada data
-                                      echo "<tr><td colspan='9'>Belum Ada Pesanan Hari ini</td></tr>";
-                                    }
-                                    ?>
-                                  </tbody>
-                                </table>
+                              <div class="mt-3">
+                                <canvas id="pemesananReport" width="277" height="150" style="display: block; box-sizing: border-box; height: 150px; width: 277px;"></canvas>
                               </div>
                             </div>
                           </div>
@@ -277,6 +268,63 @@ $res = $conn->query($querySopir);
               </div>
             </div>
           </div>
+
+          <div class="col-12 grid-margin stretch-card">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h4 class="card-title">Pesanan Terbaru</h4>
+                  <button type="submit" class="btn btn-primary"><i class="mdi mdi-apps"></i>Selengkapnya</button>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-Hover">
+                    <thead>
+                      <tr>
+                        <th>Nama</th>
+                        <th>Kota Asal</th>
+                        <th>Kota Tujuan</th>
+                        <th>Tanggal Keberangkatan</th>
+                        <th>Harga</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                      // Periksa apakah ada data
+                      if ($result->num_rows > 0) {
+                        // Loop untuk menampilkan data
+                        while ($row = $result->fetch_assoc()) {
+                          echo "<tr>";
+                          echo "<td>" . $row["nama_lengkap"] . "</td>";
+                          echo "<td>" . $row["kota_asal"] . "</td>";
+                          echo "<td>" . $row["kota_tujuan"] . "</td>";
+                          echo "<td>" . $row["tanggal_berangkat"] . "</td>";
+                          echo "<td>" . $row["harga"] . "</td>";
+                          $status = $row["status"];
+                          $class = '';
+
+                          if ($status == 'Menunggu') {
+                            $class = 'badge-opacity-warning';
+                          } elseif ($status == 'Selesai') {
+                            $class = 'badge-opacity-success';
+                          } elseif ($status == 'Gagal') {
+                            $class = 'badge-opacity-danger';
+                          }
+                          echo "<td><div class='badge $class'>$status</div></td>";
+                          echo "</tr>";
+                        }
+                      } else {
+                        // Jika tidak ada data
+                        echo "<tr><td colspan='9'>Belum Ada Pesanan Hari ini</td></tr>";
+                      }
+                      ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
       <!-- Modal Logout -->
@@ -349,6 +397,122 @@ $res = $conn->query($querySopir);
     var myModal = new bootstrap.Modal(document.getElementById('logoutModal'), {
       keyboard: false
     });
+  </script>
+
+  <script>
+    <?php
+      $thisYear = date('Y');
+      $queryChart = "
+        SELECT 
+            months.month_name,
+            COALESCE(pemesanan.total, 0) as total
+        FROM 
+            (SELECT 1 as month_num, 'Jan' as month_name
+            UNION ALL SELECT 2, 'Feb'
+            UNION ALL SELECT 3, 'Mar'
+            UNION ALL SELECT 4, 'Apr'
+            UNION ALL SELECT 5, 'May'
+            UNION ALL SELECT 6, 'Jun'
+            UNION ALL SELECT 7, 'Jul'
+            UNION ALL SELECT 8, 'Aug'
+            UNION ALL SELECT 9, 'Sept'
+            UNION ALL SELECT 10, 'Oct'
+            UNION ALL SELECT 11, 'Nov'
+            UNION ALL SELECT 12, 'Dec') as months
+        LEFT JOIN 
+            (SELECT 
+                MONTH(tanggal_pesan) as month_num, 
+                COUNT(harga) as total 
+            FROM pemesanan 
+            WHERE pemesanan.status = 'Selesai' 
+            AND YEAR(tanggal_pesan) = '$thisYear' 
+            GROUP BY MONTH(tanggal_pesan)
+            ) as pemesanan 
+        ON months.month_num = pemesanan.month_num
+        ORDER BY months.month_num;
+      ";
+      $result = $conn->query($queryChart);
+      $monthNames = [];
+      $totals = [];
+
+      if ($result->num_rows > 0) {
+          while ($row = $result->fetch_assoc()) {
+              $monthNames[] = $row['month_name'];
+              $totals[] = $row['total'];
+          }
+      }
+
+      $monthNamesJson = json_encode($monthNames);
+      $totalsJson = json_encode($totals);
+    ?>
+    if ($("#pemesananReport").length) {
+      var leaveReportChart = document.getElementById("pemesananReport").getContext('2d');
+      var leaveReportData = {
+          labels: <?= $monthNamesJson ?>,
+          datasets: [{
+              label: 'Bulan Ini',
+              data: <?= $totalsJson ?>,
+              backgroundColor: "#52CDFF",
+              borderColor: [
+                  '#52CDFF',
+              ],
+              borderWidth: 0,
+              fill: true, // 3: no fill
+              
+          }]
+      };
+  
+      var leaveReportOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+          scales: {
+              yAxes: [{
+                  gridLines: {
+                      display: true,
+                      drawBorder: false,
+                      color:"rgba(255,255,255,.05)",
+                      zeroLineColor: "rgba(255,255,255,.05)",
+                  },
+                  ticks: {
+                    beginAtZero: true,
+                    autoSkip: true,
+                    maxTicksLimit: 5,
+                    fontSize: 10,
+                    color:"#6B778C"
+                  }
+              }],
+              xAxes: [{
+                barPercentage: 0.5,
+                gridLines: {
+                    display: false,
+                    drawBorder: false,
+                },
+                ticks: {
+                  beginAtZero: false,
+                  autoSkip: true,
+                  maxTicksLimit: 12,
+                  fontSize: 10,
+                  color:"#6B778C"
+                }
+            }],
+          },
+          legend:false,
+          
+          elements: {
+              line: {
+                  tension: 0.4,
+              }
+          },
+          tooltips: {
+              backgroundColor: 'rgba(31, 59, 179, 1)',
+          }
+      }
+      var leaveReport = new Chart(leaveReportChart, {
+          type: 'bar',
+          data: leaveReportData,
+          options: leaveReportOptions
+      });
+    }
   </script>
 
 

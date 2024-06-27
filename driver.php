@@ -73,8 +73,8 @@ $username = $_SESSION["username"];
         </button>
       </div>
       <div>
-        <a class="navbar-brand brand-logo" href="index.html">
-          <img src="img/logo.svg" alt="logo" />
+        <a class="navbar-brand brand-logo" href="#">
+        <strong>PettaExpress</strong>
         </a>
         <a class="navbar-brand brand-logo-mini" href="index.html">
           <img src="img/logo-mini.svg" alt="logo" />
@@ -212,7 +212,7 @@ $username = $_SESSION["username"];
                           echo "<td>" . $row["alamat"] . "</td>";
                           echo "<td>" . $row["status"] . "</td>";
                           echo "<td>";
-                          echo "<button onclick=\"window.location.href='edit-sopir.php?id_sopir=" . $row["id_sopir"] . "'\" class='btn btn-primary'>Edit</button>" . " ";
+                          // echo "<button onclick=\"window.location.href='edit-sopir.php?id_sopir=" . $row["id_sopir"] . "'\" class='btn btn-primary'>Edit</button>" . " ";
                           echo "<button class='btn btn-danger' data-bs-toggle='modal' data-bs-target='#hapusModal" . $row['id_sopir'] . "'>Hapus</button>" . " ";
                           // Tombol Konfirmasi Aktifkan
                           if (
@@ -220,7 +220,7 @@ $username = $_SESSION["username"];
                           ) {
                             echo "<button onclick=\"tampilkanModalAktifkan('" . $row["id_sopir"] . "')\" class='btn btn-success'>Konfirmasi Aktifkan</button>";
                           } else {
-                            echo "<button class='btn btn-success' disabled>Aktif</button>";
+                            echo "<button class='btn btn-success' hidden>Aktif</button>";
                           }
                           echo "</td>";
                           echo "</tr>";

@@ -72,8 +72,8 @@ $result = $conn->query($sql);
         </button>
       </div>
       <div>
-        <a class="navbar-brand brand-logo" href="index.html">
-          <img src="img/logo.svg" alt="logo" />
+        <a class="navbar-brand brand-logo" href="#">
+        <strong>PettaExpress</strong>
         </a>
         <a class="navbar-brand brand-logo-mini" href="index.html">
           <img src="img/logo-mini.svg" alt="logo" />
@@ -194,9 +194,9 @@ $result = $conn->query($sql);
                     <thead>
                       <tr>
                         <th>Nama</th>
-                        <th>Kota Asal</th>
-                        <th>Kota Tujuan</th>
+                        <th>Perjalanan</th>
                         <th>Alamat Jemput</th>
+                        <th>Alamat Tujuan</th>
                         <th>Tanggal Pesan</th>
                         <th>Status</th>
                       </tr>
@@ -209,9 +209,9 @@ $result = $conn->query($sql);
                         while ($row = $result->fetch_assoc()) {
                           echo "<tr>";
                           echo "<td>" . $row["nama_lengkap"] . "</td>";
-                          echo "<td>" . $row["kota_asal"] . "</td>";
-                          echo "<td>" . $row["kota_tujuan"] . "</td>";
+                          echo "<td>" . $row["kota_asal"] . " -> " . $row['kota_tujuan'] . "</td>";
                           echo "<td>" . $row["alamat_jemput"] . "</td>";
+                          echo "<td>" . $row["alamat_tujuan"] . "</td>";
                           echo "<td>" . $row["tanggal_pesan"] . "</td>";
                           $status = $row["status"];
                           $class = '';

@@ -74,8 +74,8 @@ if (isset($_GET['searchInput']) && !empty($_GET['searchInput'])) {
         </button>
       </div>
       <div>
-        <a class="navbar-brand brand-logo" href="index.html">
-          <img src="img/logo.svg" alt="logo" />
+        <a class="navbar-brand brand-logo" href="#">
+        <strong>PettaExpress</strong>
         </a>
         <a class="navbar-brand brand-logo-mini" href="index.html">
           <img src="img/logo-mini.svg" alt="logo" />
@@ -184,13 +184,18 @@ if (isset($_GET['searchInput']) && !empty($_GET['searchInput'])) {
             <div class="card">
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
-                  <h4 class="card-title">Data Pelanggan</h4>
-                  <form method="get" action="pelanggan.php" class="d-flex align-items-center">
-                    <div class="me-2">
-                      <input type="text" class="form-control" id="searchInput" placeholder="Cari Pelanggan">
-                    </div>
-                    <button type="submit" class="badge btn-success">Cari</button>
-                  </form>
+                  <div class="">
+                    <h4 class="card-title">Data Pelanggan</h4>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahPelangganModal">
+                      Tambah Pelanggan
+                    </button>
+                  </div>
+                    <form method="get" action="pelanggan.php" class="d-flex align-items-center">
+                      <div class="me-2">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Cari Pelanggan">
+                      </div>
+                      <button type="submit" class="badge btn-success">Cari</button>
+                    </form>
                 </div>
                 <div class="table-responsive">
                   <table class="table table-hover">
@@ -230,6 +235,68 @@ if (isset($_GET['searchInput']) && !empty($_GET['searchInput'])) {
           </div>
         </div>
       </div>
+      <!-- Modal Tambah Pelanggan -->
+      <div class="modal fade" id="tambahPelangganModal" tabindex="-1" aria-labelledby="tambahPelangganModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form id="formTambahPelanggan" method="post" action="tambah_pelanggan.php">
+              <div class="modal-header">
+                <h5 class="modal-title" id="tambahPelangganModalLabel">Tambah Pelanggan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label for="namaLengkap" class="form-label">Nama Lengkap</label>
+                  <input type="text" class="form-control" id="namaLengkap" name="nama_lengkap" required>
+                </div>
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="mb-3">
+                  <label for="notelp" class="form-label">No. Telp</label>
+                  <input type="text" class="form-control" id="notelp" name="notelp" required>
+                </div>
+                <div class="mb-3">
+                  <label for="nik" class="form-label">NIK</label>
+                  <input type="text" class="form-control" id="nik" name="nik" required>
+                </div>
+                <div class="mb-3">
+                  <label for="alamat" class="form-label">Alamat</label>
+                  <textarea class="form-control" id="alamat" name="alamat" required></textarea>
+                </div>
+                <div class="mb-3">
+                  <label for="password" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Sukses -->
+      <div class="modal fade" id="suksesModal" tabindex="-1" aria-labelledby="suksesModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="suksesModalLabel">Berhasil</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Pelanggan berhasil ditambahkan!
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Modal Logout -->
       <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -309,6 +376,15 @@ if (isset($_GET['searchInput']) && !empty($_GET['searchInput'])) {
           $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
       });
+
+
+      <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
+        // Tampilkan modal sukses jika pelanggan berhasil ditambahkan
+        // var suksesModal = new bootstrap.Modal(document.getElementById('suksesModal'));
+        // suksesModal.show();
+        $('#suksesModal').modal('show');
+      <?php endif; ?>
+
     });
   </script>
 
